@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Live World Population</title>
+<style>
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  color:#fff;
+  overflow:hidden;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  background:linear-gradient(180deg,#0b132b,#1c2541,#3a506b);
+  text-align:center;
+  text-shadow:0 0 6px rgba(0,0,0,0.8);
+}
+canvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;}
+header{position:absolute;top:10px;width:100%;z-index:1;}
+#date{font-size:1.2rem;font-weight:bold;letter-spacing:1px;text-shadow:0 0 10px rgba(0,0,0,0.9);}
+#clock{font-size:1.8rem;font-weight:bold;letter-spacing:2px;text-shadow:0 0 10px rgba(0,0,0,0.9);}
+h1{font-size:2rem;margin:10px 0 5px 0;z-index:1;}
+#counter{font-size:3rem;font-weight:bold;margin-bottom:5px;z-index:1;text-shadow:0 0 25px rgba(0,0,0,0.7);}
+#stats{font-size:1.2rem;font-weight:600;margin-bottom:1.5rem;z-index:1;opacity:0.95;}
+#refresh-btn{
+  background:rgba(255,255,255,0.15);
+  border:1px solid rgba(255,255,255,0.3);
+  border-radius:8px;
+  padding:10px 20px;
+  font-size:1rem;
+  font-weight:bold;
+  color:#fff;
+  cursor:pointer;
+  backdrop-filter:blur(8px);
+  transition:all 0.3s ease;
+  z-index:1;
+  margin-bottom:10px;
+}
+#refresh-btn:hover{
+  background:rgba(0,255,255,0.25);
+  transform:scale(1.07);
+  box-shadow:0 0 20px rgba(0,255,255,0.4);
+}
+#settings-btn{
+  position:absolute;top:10px;right:10px;z-index:2;padding:10px 16px;background:rgba(255,255,255,0.15);
+  border:1px solid rgba(255,255,255,0.3);border-radius:8px;cursor:pointer;backdrop-filter:blur(8px);color:#fff;font-weight:bold;font-size:1rem;
+}
+#settings-panel{
+  position:fixed;top:50%;left:50%;transform:translate(-50%, -50%) scale(0.8);
+  background:rgba(0,0,0,0.95);padding:20px;border-radius:16px;
+  display:flex;flex-direction:column;align-items:center;
+  opacity:0;transition:opacity 0.3s ease, transform 0.3s ease;
+  z-index:4;
+}
+#settings-panel.show{opacity:1;transform:translate(-50%, -50%) scale(1);}
+#settings-panel label, #settings-panel select, #settings-panel button{
+  margin:10px 0;font-size:1.1rem;padding:10px 16px;border-radius:8px;border:none;
+}
+#settings-panel button{cursor:pointer;background:#1c2541;color:#fff;font-weight:bold;}
+footer{position:absolute;bottom:5px;font-size:0.9rem;opacity:0.9;z-index:1;text-shadow:0 0 6px rgba(0,0,0,0.9);}
+@media(max-width:600px){
+  #counter{font-size:2.4rem;}
+  #stats{font-size:1rem;}
+  h1{font-size:1.6rem;}
+  #settings-btn{font-size:0.95rem;padding:8px 12px;}
+  #settings-panel label,#settings-panel select,#settings-panel button{font-size:1rem;padding:8px 14px;}
+}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<header>
+  <div id="date"></div>
+  <div id="clock"></div>
+</header>
+<h1 id="title">🌎 Live World Population</h1>
+<div id="counter">Loading...</div>
+<div id="stats">👶 Births: 0 • ☠️ Deaths: 0</div>
+<button id="refresh-btn">🔄 Refresh Now</button>
+<button id="settings-btn">Settings ⚙️</button>
+<div id="settings-panel">
+  <label for="language">Language / Dil:</label>
+  <select id="language">
+    <option value="en">English</option>
+    <option value="tr">Turkish</option>
+  </select>
+  <button id="save-settings">Save</button>
+</div>
+<footer id="footer">Source: World Bank (live data, updates every 3s)</footer>
+
+<script>
+const canvas=document.getElementById('stars');const ctx=canvas.getContext('2d');let stars=[];
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+window.addEventListener('resize',resize);resize();
+function initStars(count=150){stars=[];for(let i=0;i<count;i++){stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*1.5+0.3,speed:Math.random()*0.3+0.1,alpha:Math.random()});}}
+function drawStars(){ctx.clearRect(0,0,canvas.width,canvas.height);for(let s of stars){ctx.beginPath();ctx.arc(s.x,s.y,s.size,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${s.alpha})`;ctx.fill();s.y+=s.speed;if(s.y>canvas.height)s.y=0;}requestAnimationFrame(drawStars);}
+initStars();drawStars();
+let time=0;
+function animateBackground(){time+=0.002;const r1=Math.floor(11+40*Math.sin(time)),g1=Math.floor(19+40*Math.sin(time+1)),b1=Math.floor(43+60*Math.sin(time+2));const r2=Math.floor(28+60*Math.sin(time+2)),g2=Math.floor(83+60*Math.sin(time+3)),b2=Math.floor(100+60*Math.sin(time+4));document.body.style.background=`linear-gradient(180deg,rgb(${r1},${g1},${b1}),rgb(${r2},${g2},${b2}))`;requestAnimationFrame(animateBackground);}
+animateBackground();
+
+let population=0;const birthPerSecond=4.3;const deathPerSecond=1.8;let births=0,deaths=0;
+let lang="en";
+if(localStorage.getItem("selectedLang")){lang=localStorage.getItem("selectedLang");document.getElementById("language").value=lang;}
+
+function updateCounters(){
+  population += (birthPerSecond - deathPerSecond)/10;
+  births += birthPerSecond/10;
+  deaths += deathPerSecond/10;
+  document.getElementById("counter").textContent=Math.floor(population).toLocaleString(lang=="tr"?"tr-TR":"en-US");
+  document.getElementById("stats").textContent=lang=="tr"?`👶 Doğumlar: ${Math.floor(births).toLocaleString("tr-TR")} • ☠️ Ölümler: ${Math.floor(deaths).toLocaleString("tr-TR")}`:`👶 Births: ${Math.floor(births).toLocaleString("en-US")} • ☠️ Deaths: ${Math.floor(deaths).toLocaleString("en-US")}`;
+}
+setInterval(updateCounters,100);
+
+async function fetchPopulation(){
+  try{
+    const res=await fetch("https://api.worldbank.org/v2/country/WLD/indicator/SP.POP.TOTL?format=json&per_page=1");
+    const data=await res.json();
+    const value=data[1][0].value;
+    population=value;
+  }catch(e){console.error(e);}
+}
+
+setInterval(fetchPopulation,3000);
+document.getElementById("refresh-btn").onclick=fetchPopulation;
+fetchPopulation();
+
+function updateClock(){
+  const now=new Date();
+  const options={weekday:'long',year:'numeric',month:'long',day:'numeric'};
+  document.getElementById("date").textContent=lang=="tr"?now.toLocaleDateString("tr-TR",options):now.toLocaleDateString("en-US",options);
+  document.getElementById("clock").textContent=now.toLocaleTimeString(lang=="tr"?"tr-TR":"en-US");
+}
+setInterval(updateClock,1000);updateClock();
+
+const settingsBtn=document.getElementById("settings-btn");
+const panel=document.getElementById("settings-panel");
+const saveBtn=document.getElementById("save-settings");
+settingsBtn.onclick=()=>{panel.classList.toggle("show");}
+saveBtn.onclick=()=>{lang=document.getElementById("language").value;localStorage.setItem("selectedLang",lang);
+if(lang=="en"){document.getElementById("title").textContent="🌎 Live World Population";document.getElementById("footer").textContent="Source: World Bank (live data, updates every 3s)";}
+else{document.getElementById("title").textContent="🌎 Canlı Dünya Nüfusu";document.getElementById("footer").textContent="Kaynak: Dünya Bankası (canlı veri, 3 sn'de bir güncellenir)";}
+panel.classList.remove("show");updateCounters();updateClock();}
+</script>
+</body>
+</html>
